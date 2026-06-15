@@ -1,6 +1,7 @@
 import base64
 import io
 
+import pytest
 from PIL import Image
 
 from pillow_datauri import read_image_from_src_attr, supported_formats_for_mime
@@ -24,3 +25,8 @@ def test_read_image_from_src_attr():
     mime, image = read_image_from_src_attr(src)
     assert mime == "image/png"
     assert image.size == (1, 1)
+
+
+def test_read_image_from_src_attr_rejects_invalid_data_uri():
+    with pytest.raises(ValueError):
+        read_image_from_src_attr("not-a-data-uri")

@@ -13,7 +13,12 @@ def supported_formats_for_mime(mime_type: str) -> list[str]:
 
 def read_image_from_src_attr(src_attr: str) -> tuple[str, Image.Image]:
     """Parse a data URI image from an HTML img src attribute."""
-    mime_type = src_attr[len("data:") : src_attr.find(";")]
-    decoded = base64.b64decode(src_attr[src_attr.find(",") + 1 :])
+    if not src_attr.startswith("data:") or ";" not in src_attr or "," not in src_attr:
+        raise ValueError("src_attr must be a data URI")
+    header, encoded = src_attr.split(",", 1)
+    mime_type = header[len("data:") : header.find(";")]
+    if not mime_type:
+        raise ValueError("data URI is missing a MIME type")
+    decoded = base64.b64decode(encoded)
     image = Image.open(io.BytesIO(decoded))
     return mime_type, image
